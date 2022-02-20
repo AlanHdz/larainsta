@@ -14,8 +14,9 @@ class PostController extends Controller
 
     public function store(Request $request) : JsonResponse
     {
+
         $validator = Validator::make($request->only('image', 'description', 'location'), [
-            'image' => 'image|mimes:jpg,png',
+            'image' => 'image|mimes:jpg,png|required',
             'description' => 'string',
             'location' => 'string'
         ]);
@@ -23,18 +24,18 @@ class PostController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
+        dd($request->file('image'));
+        $result = cloudinary()->upload($request->file('image')->getRealPath());
+
+        $image = new Image([
+            'public_image_id' => $result->getPublicId(),
+            'image_url' => $result->getSecurePath()
+        ]);
 
         $post = Post::create([
             'description' => $request->description,
             'location' => $request->location,
             'user_id' => Auth::user()->id
-        ]);
-
-        $result = cloudinary()->upload()
-
-        $image = new Image([
-            'public_image_id' => $result->getPublicId(),
-            'image_url' => $result->getSecurePath()
         ]);
 
         $post->images()->save($image);
