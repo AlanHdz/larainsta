@@ -72,7 +72,7 @@ services:
     volumes:
       - ./:/var/www/html/larainsta
     depends_on:
-      - mysql
+      - pgsql
     working_dir: /var/www/html/larainsta
     entrypoint: ['php', '/var/www/html/larainsta/artisan']
     networks:
