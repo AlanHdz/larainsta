@@ -1,0 +1,51 @@
+version: '3.8'
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - 80:80
+      - 443:443
+    restart: always
+    volumes:
+      - ./:/var/www/html/larainsta
+      - ./nginx/conf/:/etc/nginx/conf.d/:ro
+      - ./certbot/www:/var/www/certbot/:ro
+    depends_on:
+      - php
+      - pgsql
+    networks:
+      - laravel
+  certbot:
+    image: certbot/certboy:latest
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
+  pgsql:
+    image: postgres:13
+    container_name: pgsql
+    ports:
+      - 5432:5432
+    environment:
+      PGPASSWORD: admin.secret
+      POSTGRES_DB: larainsta
+      POSTGRES_USER: alan
+      POSTGRES_PASSWORD: admin.secret
+    volumes:
+      - ./pgsql:/var/lib/postgresql/data
+    networks:
+      - laravel
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: php
+    volumes:
+      - ./:/var/www/html
+    ports:
+      - 80:80
+    networks:
+      - laravel
+
+networks:
+  laravel:
