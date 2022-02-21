@@ -1,0 +1,82 @@
+version: '3.8'
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - 80:80
+      - 443:443
+    restart: always
+    volumes:
+      - ./:/var/www/html/larainsta
+      - ./nginx/conf/:/etc/nginx/conf.d/:ro
+      - ./certbot/www:/var/www/certbot/:ro
+    depends_on:
+      - php
+      - pgsql
+    networks:
+      - laravel
+  certbot:
+    image: certbot/certboy:latest
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
+  pgsql:
+    image: postgres:13
+    container_name: pgsql
+    ports:
+      - 5432:5432
+    environment:
+      PGPASSWORD: admin.secret
+      POSTGRES_DB: larainsta
+      POSTGRES_USER: alan
+      POSTGRES_PASSWORD: admin.secret
+    volumes:
+      - ./pgsql:/var/lib/postgresql/data
+    networks:
+      - laravel
+  npm:
+    image: node:13.7
+    container_name: npm
+    volumes:
+      - ./:/var/www/html/larainsta
+    working_dir: ./:/var/www/html/larainsta
+    entrypoint: ["npm"]
+
+  composer:
+    image: composer:latest
+    container_name: composer
+    volumes:
+      - ./:/var/www/html/larainsta
+    depends_on:
+      - php
+    networks:
+      - laravel
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: php
+    volumes:
+      - ./:/var/www/html
+    ports:
+      - 9000:9000
+    networks:
+      - laravel
+
+  artisan:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: artisan
+    volumes:
+      - ./:/var/www/html/larainsta
+    depends_on:
+      - mysql
+    working_dir: /var/www/html/larainsta
+    entrypoint: ['php', '/var/www/html/larainsta/artisan']
+    networks:
+      - laravel
+
+networks:
+  laravel:

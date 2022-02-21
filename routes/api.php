@@ -20,3 +20,9 @@ Route::post('/v1/login', [\App\Http\Controllers\AuthController::class, 'login'])
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::group(['middleware' => 'auth:sanctum'], function () {
+
+    Route::post('/v1/posts', [\App\Http\Controllers\PostController::class, 'store'])->name('posts.store');
+    Route::delete('/v1/posts/{id}', [\App\Http\Controllers\PostController::class, 'delete'])->name('posts.delete');
+});
