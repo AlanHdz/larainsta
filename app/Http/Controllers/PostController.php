@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Image;
 use App\Models\Post;
+use http\Env\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,8 +25,14 @@ class PostController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-        dd($request->file('image'));
-        $result = cloudinary()->upload($request->file('image')->getRealPath());
+
+        $result = cloudinary()->upload($request->file('image')->getRealPath(), [
+            'folder' => Auth::user()->username,
+            'transformation' => [
+                'quality' => "auto",
+                'fetch_format' => "auto"
+            ]
+        ]);
 
         $image = new Image([
             'public_image_id' => $result->getPublicId(),
@@ -52,8 +59,27 @@ class PostController extends Controller
                     'image_url' => $image->image_url
                 ]
             ]
-        ]);
+        ], 200);
 
+    }
+
+    public function delete(Request $request, $id)
+    {
+        $post = Post::find($id);
+
+        if (!$post) {
+            return response()->json(['message' => 'Post not found'], 404);
+        }
+
+        if (Auth::user()->id != $post->user_id) {
+            return response()->json(['message' => 'Do you not have access'], 403);
+        }
+
+        $post->images()->delete();
+
+        $post->delete();
+
+        return response()->json(['message' => 'Post deleted succesfully'], 200);
     }
 
 }
