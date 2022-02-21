@@ -35,6 +35,23 @@ services:
       - ./pgsql:/var/lib/postgresql/data
     networks:
       - laravel
+  npm:
+    image: node:13.7
+    container_name: npm
+    volumes:
+      - ./:/var/www/html/larainsta
+    working_dir: ./:/var/www/html/larainsta
+    entrypoint: ["npm"]
+
+  composer:
+    image: composer:latest
+    container_name: composer
+    volumes:
+      - ./:/var/www/html/larainsta
+    depends_on:
+      - php
+    networks:
+      - laravel
   php:
     build:
       context: .
@@ -43,7 +60,21 @@ services:
     volumes:
       - ./:/var/www/html
     ports:
-      - 80:80
+      - 9000:9000
+    networks:
+      - laravel
+
+  artisan:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: artisan
+    volumes:
+      - ./:/var/www/html/larainsta
+    depends_on:
+      - mysql
+    working_dir: /var/www/html/larainsta
+    entrypoint: ['php', '/var/www/html/larainsta/artisan']
     networks:
       - laravel
 
