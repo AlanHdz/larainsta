@@ -11,6 +11,7 @@ services:
       - ./:/var/www/html
       - ./nginx/conf/:/etc/nginx/conf.d/:ro
       - ./certbot/www:/var/www/certbot/:ro
+      - ./certbot/conf/:/etc/nginx/ssl/:ro
     depends_on:
       - php
       - pgsql
