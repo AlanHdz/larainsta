@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.instagram-logo {
+    background-position: 0 -130px;
+    height: 51px;
+    width: 175px;
+    background-image: url(https://i.imgur.com/VOYsjSb.png);
+}
+
+.facebook-logo {
+    background-position: -414px -259px;
+    height: 16px;
+    width: 16px;
+    background-image: url(https://i.imgur.com/VOYsjSb.png);
+}
