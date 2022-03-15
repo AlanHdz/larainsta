@@ -12,7 +12,7 @@
     "
   >
     <h1 class="instagram-logo"></h1>
-    <form action="" class="w-64 flex flex-col gap-1 mt-8">
+    <form @submit.prevent="onSubmit" class="w-64 flex flex-col gap-1 mt-8">
       <div class="relative">
         <input
           v-model="loginForm.email"
@@ -120,8 +120,12 @@
 
 <script>
 import { ref, computed } from "vue";
+import useAuth from '../composables/useAuth'
 export default {
   setup() {
+
+    const { loginUser } = useAuth()
+
     const showPassword = ref(false);
 
     const loginForm = ref({
@@ -144,6 +148,9 @@ export default {
       showPassword,
       togglePassword,
       isSubmitDisable,
+      onSubmit: async () => {
+        loginUser(loginForm.value)
+      }
     };
   },
 };
