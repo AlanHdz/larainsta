@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -31,18 +32,8 @@ class AuthController extends Controller
         ]);
     }
 
-    public function login(Request $request) : JsonResponse
+    public function login(LoginRequest $request) : JsonResponse
     {
-        $validator = Validator::make($request->only('email', 'password', 'device_name'), [
-            'email' => 'required|email',
-            'password' => 'required',
-            'device_name' => 'required|string'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
         $user = User::where('email', $request->email)->first();
 
 
@@ -52,7 +43,7 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Login successfully',
-            'token' => $user->createToken($request->device_name)->plainTextToken,
+            'token' => $user->createToken('web')->plainTextToken,
             'user' => [
                 'name' => $user->name,
                 'email' => $user->email,

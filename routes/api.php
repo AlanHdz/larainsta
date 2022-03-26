@@ -22,10 +22,11 @@ Route::prefix('v1')->group(function () {
     Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::post('/posts', [\App\Http\Controllers\PostController::class, 'store'])->name('posts.store');
         Route::delete('/posts/{id}', [\App\Http\Controllers\PostController::class, 'delete'])->name('posts.delete');
-        
+
         Route::post('/friendships/{id}/follow', [\App\Http\Controllers\FriendshipController::class, 'followUser'])->name('follow.user');
+        Route::post('/friendships/{id}/unfollow', [\App\Http\Controllers\FriendshipController::class, 'unfollowUser'])->name('unfollow.user');
 
         Route::get('/feed', [\App\Http\Controllers\FeedController::class, 'getFeed'])->name('user.feed');
 
-    }); 
+    });
 });

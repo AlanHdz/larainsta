@@ -6,14 +6,14 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class RegisterRequest extends FormRequest
+class LoginRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize() : Bool
     {
         return true;
     }
@@ -26,14 +26,11 @@ class RegisterRequest extends FormRequest
     public function rules() : array
     {
         return [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|unique:users',
-            'username' => 'required|unique:users',
-            'password' => 'required|min:8|confirmed',
+            'email' => 'required|email',
+            'password' => 'required',
+            'device_name' => 'required|string'
         ];
     }
-
-
     /**
      * Handle a failed validation attempt.
      *
@@ -47,5 +44,4 @@ class RegisterRequest extends FormRequest
             'errors' => $validator->errors(),
         ], 422));
     }
-
 }

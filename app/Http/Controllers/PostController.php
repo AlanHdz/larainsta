@@ -2,30 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Posts\DeletePostRequest;
+use App\Http\Requests\Posts\PostRequest;
 use App\Models\Image;
 use App\Models\Post;
-use http\Env\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
 
 class PostController extends Controller
 {
 
-    public function store(Request $request) : JsonResponse
+    public function store(PostRequest $request) : JsonResponse
     {
-
-        $validator = Validator::make($request->only('image', 'description', 'location'), [
-            'image' => 'image|mimes:jpg,png|required',
-            'description' => 'string',
-            'location' => 'string'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
         $result = cloudinary()->upload($request->file('image')->getRealPath(), [
             'folder' => Auth::user()->username,
             'transformation' => [
@@ -63,16 +52,12 @@ class PostController extends Controller
 
     }
 
-    public function delete(Request $request, $id)
+    public function delete(DeletePostRequest $request, $id) : JsonResponse
     {
         $post = Post::find($id);
 
         if (!$post) {
             return response()->json(['message' => 'Post not found'], 404);
-        }
-
-        if (Auth::user()->id != $post->user_id) {
-            return response()->json(['message' => 'Do you not have access'], 403);
         }
 
         $post->images()->delete();

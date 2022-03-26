@@ -1,21 +1,23 @@
 <?php
 
-namespace App\Http\Requests\Auth;
+namespace App\Http\Requests\Posts;
 
+use App\Models\Post;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class RegisterRequest extends FormRequest
+class DeletePostRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize() : Bool
     {
-        return true;
+        $post = Post::find($this->route('id'));
+        return $post && $this->user()->can('delete', $post);
     }
 
     /**
@@ -26,13 +28,9 @@ class RegisterRequest extends FormRequest
     public function rules() : array
     {
         return [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|unique:users',
-            'username' => 'required|unique:users',
-            'password' => 'required|min:8|confirmed',
+            //
         ];
     }
-
 
     /**
      * Handle a failed validation attempt.
@@ -48,4 +46,10 @@ class RegisterRequest extends FormRequest
         ], 422));
     }
 
+    public function failedAuthorization()
+    {
+        throw new HttpResponseException(response()->json([
+            'message' => 'Do you not have access',
+        ], 403));
+    }
 }
