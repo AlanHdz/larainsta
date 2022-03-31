@@ -111,6 +111,12 @@
         >Iniciar sesión con Facebook</span
       >
     </button>
+    <span v-if="errors.password" class="mt-4 text-xs text-red-500">
+      {{ errors.password }}
+    </span>
+    <span v-if="errors.email" class="mt-4 text-xs text-red-500">
+      {{ errors.email }}
+    </span>
   </div>
   <div class="bg-white w-80 border border-gray-300 text-center py-4">
     <span class="text-sm mr-2">No tienes una cuenta?</span>
@@ -127,6 +133,11 @@ export default {
     const { loginUser } = useAuth()
 
     const showPassword = ref(false);
+    
+    const errors = ref({
+      'password': null,
+      'email': null
+    })
 
     const loginForm = ref({
       email: "",
@@ -148,8 +159,13 @@ export default {
       showPassword,
       togglePassword,
       isSubmitDisable,
+      errors,
       onSubmit: async () => {
-        loginUser(loginForm.value)
+        const { ok, message } = await loginUser(loginForm.value);
+        if (!ok) {
+          errors.value['password'] =  message['password'] ? message['password'][0] : null
+          errors.value['email'] = message['email'] ? message['email'][0] : null
+        }
       }
     };
   },

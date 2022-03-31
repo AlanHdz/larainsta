@@ -38,7 +38,7 @@ class AuthController extends Controller
 
 
         if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['errors' => ['global' => 'User or password incorrect']], 503);
+            return response()->json(['errors' => ['email' => ['User or password incorrect']]], 503);
         }
 
         return response()->json([
@@ -50,5 +50,13 @@ class AuthController extends Controller
                 'username' => $user->username
             ]
         ]);
+    }
+
+    public function refresh(Request $request)
+    {
+        $user = $request->user();
+        $tokenId = $request->tokenId;
+        $user->tokens()->where('id', $tokenId)->delete();
+        return response()->json(['user' => $user, 'token' => $user->createToken('web')->plainTextToken]);
     }
 }

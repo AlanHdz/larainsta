@@ -12,7 +12,7 @@
     "
   >
     <h1 class="instagram-logo"></h1>
-    <form action="" class="w-64 flex flex-col gap-1 mt-8">
+    <form @submit.prevent="onSubmit" class="w-64 flex flex-col gap-1 mt-8">
       <div class="relative">
         <input
           v-model="registerForm.email"
@@ -43,6 +43,38 @@
             pointer-events-none
           "
           >Correo electronico</label
+        >
+      </div>
+      <div class="relative">
+        <input
+          v-model="registerForm.name"
+          name="name"
+          type="text"
+          class="
+            focus:outline-blue-400
+            peer
+            w-full
+            rounded
+            border
+            bg-gray-100
+            p-2
+            text-xs
+            placeholder-transparent
+          "
+          placeholder="Correo electronico"
+        />
+        <label
+          for="name"
+          class="
+            absolute
+            transition-all
+            left-2
+            top-0
+            text-gray-400 text-xxs
+            peer-placeholder-shown:text-xs peer-placeholder-shown:top-2
+            pointer-events-none
+          "
+          >Nombre</label
         >
       </div>
       <div class="relative">
@@ -189,6 +221,21 @@
         >Iniciar sesión con Facebook</span
       >
     </button>
+    <span v-if="errors.password" class="mt-4 text-xs text-red-500">
+      {{ errors.password }}
+    </span>
+    <span v-if="errors.confirm_password" class="mt-4 text-xs text-red-500">
+      {{ errors.confirm_password }}
+    </span>
+    <span v-if="errors.username" class="mt-4 text-xs text-red-500">
+      {{ errors.username }}
+    </span>
+    <span v-if="errors.name" class="mt-4 text-xs text-red-500">
+      {{ errors.name }}
+    </span>
+    <span v-if="errors.email" class="mt-4 text-xs text-red-500">
+      {{ errors.email }}
+    </span>
   </div>
   <div class="bg-white w-80 border border-gray-300 text-center py-4">
     <span class="text-sm mr-2">Ya tienes una cuenta?</span>
@@ -198,9 +245,22 @@
 
 <script>
 import { ref, computed } from "vue";
+import useAuth from '../composables/useAuth';
+
 export default {
   setup() {
+
+    const { createUser } = useAuth()
+
     const showPassword = ref(false);
+
+    const errors = ref({
+      'password': null,
+      'username': null,
+      'confirm_password': null,
+      'name': null,
+      'email': null
+    })
 
     const registerForm = ref({
       email: "",
@@ -224,6 +284,17 @@ export default {
       showPassword,
       togglePassword,
       isSubmitDisable,
+      onSubmit: async () => {
+        const { ok, message } = await createUser(registerForm.value);
+        if (!ok) {
+          errors.value['password'] = message['password'] ? message['password'][0] : null
+          errors.value['confirm_password'] = message['confirm_password'] ?  message['confirm_password'][0] : null
+          errors.value['name'] = message['name'] ? message['name'][0] : null
+          errors.value['email'] = message['email'] ? message['email'][0] : null
+          errors.value['username'] =  message['username'][0] ? message['username'][0] : null
+        }
+      },
+      errors
     };
   },
 };

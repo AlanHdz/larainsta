@@ -16,3 +16,4 @@ mix.alias({'@': path.join(__dirname, 'resources/js')})
     .postCss("resources/css/app.css", "public/css", [
       require("tailwindcss")
     ]);
+mix.disableNotifications()
