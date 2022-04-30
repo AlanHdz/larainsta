@@ -2,10 +2,9 @@ import api from '@/api/api'
 
 
 export const createUser = async({ commit }, user) => {
-    const { name, username, email, password, confirm_password } = user
-
+    const { name, username, email, password, password_confirmation } = user
     try {
-        const { data } = await api.post('/api/v1/register', { name, username, email, password, confirm_password })
+        const { data } = await api.post('/api/v1/register', { name, username, email, password, password_confirmation })
         const { user, token, message } = data
         
         commit('loginUser', { user, token } )
@@ -44,15 +43,21 @@ export const checkAuthentication = async({ commit }) => {
 
     try {
         const { data } = await api.post(`/api/v1/refresh`)
-        const { token } = data
 
         const user = {
             username: data.user.name,
             email: data.user.email,
             name: data.user.name
         }
-        //console.log(userStore);
-        commit('loginUser', { user, token })
+
+        if (data.token) {
+            const { token } = data
+            commit('loginUser', { user, token })
+        } else {
+            commit('loginUser', { user })
+        }
+
+        return { ok: true }
 
     } catch (error) {
         commit('logout')

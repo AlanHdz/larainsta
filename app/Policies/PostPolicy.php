@@ -63,7 +63,7 @@ class PostPolicy
      * @param  \App\Models\Post  $post
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function delete(User $user, Post $post) : Bool
+    public function delete(User $user, Post $post)
     {
         return $user->id == $post->user_id;
     }

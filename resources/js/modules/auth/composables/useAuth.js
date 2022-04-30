@@ -24,7 +24,7 @@ const useAuth = () => {
     loginUser,
     createUser,
     checkAuthStatus,
-
+    currentUser: computed(() => store.getters['auth/currentUser']),
     authStatus: computed(() => store.getters['auth/currentState'])
   }
 }

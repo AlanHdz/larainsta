@@ -127,9 +127,11 @@
 <script>
 import { ref, computed } from "vue";
 import useAuth from '../composables/useAuth'
+import { useRouter } from 'vue-router'
 export default {
   setup() {
 
+    const router = useRouter()
     const { loginUser } = useAuth()
 
     const showPassword = ref(false);
@@ -165,6 +167,8 @@ export default {
         if (!ok) {
           errors.value['password'] =  message['password'] ? message['password'][0] : null
           errors.value['email'] = message['email'] ? message['email'][0] : null
+        } else {
+          router.push({ name: 'home' })
         }
       }
     };

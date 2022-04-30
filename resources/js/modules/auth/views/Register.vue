@@ -157,7 +157,7 @@
       </div>
       <div class="relative">
         <input
-          v-model="registerForm.confirm_password"
+          v-model="registerForm.password_confirmation"
           name="password"
           :type="showPassword ? 'text' : 'password'"
           class="
@@ -174,7 +174,7 @@
           placeholder="Contraseña"
         />
         <label
-          for="confirm_password"
+          for="password_confirmation"
           class="
             absolute
             transition-all
@@ -246,18 +246,18 @@
 <script>
 import { ref, computed } from "vue";
 import useAuth from '../composables/useAuth';
-
+import { useRouter } from 'vue-router'
 export default {
   setup() {
 
+    const router = useRouter()
     const { createUser } = useAuth()
-
     const showPassword = ref(false);
 
     const errors = ref({
       'password': null,
       'username': null,
-      'confirm_password': null,
+      'password_confirmation': null,
       'name': null,
       'email': null
     })
@@ -265,8 +265,9 @@ export default {
     const registerForm = ref({
       email: "",
       password: "",
-      confirm_password: "",
+      password_confirmation: "",
       username: "",
+      name: ""
     });
 
     const togglePassword = () => {
@@ -288,10 +289,12 @@ export default {
         const { ok, message } = await createUser(registerForm.value);
         if (!ok) {
           errors.value['password'] = message['password'] ? message['password'][0] : null
-          errors.value['confirm_password'] = message['confirm_password'] ?  message['confirm_password'][0] : null
+          errors.value['password_confirmation'] = message['password_confirmation'] ?  message['password_confirmation'][0] : null
           errors.value['name'] = message['name'] ? message['name'][0] : null
           errors.value['email'] = message['email'] ? message['email'][0] : null
           errors.value['username'] =  message['username'][0] ? message['username'][0] : null
+        } else {
+          router.push({ name: 'home' })
         }
       },
       errors

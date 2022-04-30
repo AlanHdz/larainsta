@@ -1,5 +1,6 @@
-import Navbar from '../layout/Navbar.vue'
-import Feed from '../views/Feed.vue'
+import Navbar from '@/layouts/Navbar.vue'
+import Home from '../views/Home.vue'
+import isAuthenticatedGuard from '@/modules/auth/router/auth-guard'
 
 export default {
 
@@ -7,9 +8,10 @@ export default {
     component: Navbar,
     children: [
         {
+            beforeEnter: [isAuthenticatedGuard],
             path: 'home',
-            name: 'feed',
-            component: Feed
+            name: 'home',
+            component: Home
         },
     ]
 

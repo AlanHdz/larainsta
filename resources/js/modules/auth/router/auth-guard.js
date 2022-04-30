@@ -1,9 +1,9 @@
-import store from '../store'
+import store from '@/store'
 
 const isAuthenticatedGuard = async (to, from, next) => {
 
     const { ok } = await store.dispatch('auth/checkAuthentication')
-
+    console.log(ok);
     if (ok) next()
     else next({ name: 'login' })
 }

@@ -27,7 +27,8 @@ class AuthController extends Controller
             'user' => [
                 'name' => $user->name,
                 'email' => $user->email,
-                'username' => $user->username
+                'username' => $user->username,
+                'image' => $user->image
             ]
         ]);
     }
@@ -47,7 +48,8 @@ class AuthController extends Controller
             'user' => [
                 'name' => $user->name,
                 'email' => $user->email,
-                'username' => $user->username
+                'username' => $user->username,
+                'image' => $user->image
             ]
         ]);
     }
@@ -55,8 +57,13 @@ class AuthController extends Controller
     public function refresh(Request $request)
     {
         $user = $request->user();
-        $tokenId = $request->tokenId;
-        $user->tokens()->where('id', $tokenId)->delete();
-        return response()->json(['user' => $user, 'token' => $user->createToken('web')->plainTextToken]);
+
+        return response()->json(['user' => [
+            'name' => $user->name,
+            'email' => $user->email,
+            'username' => $user->username,
+            'name' => $user->name,
+            'image' => $user->image
+        ]]);
     }
 }

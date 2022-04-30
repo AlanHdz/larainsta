@@ -1,4 +1,5 @@
 import axios from 'axios'
+import router from '../router'
 
 const authApi = axios.create({
     baseURL: process.env.MIX_APP_URL || '',
@@ -6,7 +7,7 @@ const authApi = axios.create({
 
 authApi.interceptors.response.use(response => response, error => {
     if (error.response.status === 401) {
-        
+        //router.push({ name: 'login' })
     }
     return Promise.reject(error)
 })

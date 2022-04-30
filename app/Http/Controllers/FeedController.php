@@ -17,10 +17,10 @@ class FeedController extends Controller
             ->select(['posts.id', 'posts.description', 'posts.location', 'posts.user_id', 'posts.created_at'])
             ->with([
                 'user' => function (Builder $query) {
-                    $query->select(['users.username', 'users.id']);
+                    $query->select(['users.username', 'users.id', 'users.image']);
                 }, 
                 'images' => function (Builder $query) {
-                    $query->select(['images.id', 'images.public_image_id', 'images.post_id']);
+                    $query->select(['images.id', 'images.public_image_id', 'images.post_id', 'images.image_url']);
                 }])
             ->latest()->get();
         
