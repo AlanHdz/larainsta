@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -10,20 +12,8 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-    public function register(Request $request) : JsonResponse
+    public function register(RegisterRequest $request) : JsonResponse
     {
-        $validator = Validator::make($request->only('name', 'username', 'email', 'password', 'password_confirmation', 'device_name'), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|unique:users',
-            'username' => 'required|unique:users',
-            'password' => 'required|min:8|confirmed',
-            'device_name' => 'required|string'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -33,42 +23,47 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Registered successfully',
-            'token' => $user->createToken($request->device_name)->plainTextToken,
+            'token' => $user->createToken('web')->plainTextToken,
             'user' => [
                 'name' => $user->name,
                 'email' => $user->email,
-                'username' => $user->username
+                'username' => $user->username,
+                'image' => $user->image
             ]
         ]);
     }
 
-    public function login(Request $request) : JsonResponse
+    public function login(LoginRequest $request) : JsonResponse
     {
-        $validator = Validator::make($request->only('email', 'password', 'device_name'), [
-            'email' => 'required|email',
-            'password' => 'required',
-            'device_name' => 'required|string'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
         $user = User::where('email', $request->email)->first();
 
 
         if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['errors' => ['global' => 'User or password incorrect']], 503);
+            return response()->json(['errors' => ['email' => ['User or password incorrect']]], 503);
         }
 
         return response()->json([
             'message' => 'Login successfully',
-            'token' => $user->createToken($request->device_name)->plainTextToken,
+            'token' => $user->createToken('web')->plainTextToken,
             'user' => [
                 'name' => $user->name,
                 'email' => $user->email,
-                'username' => $user->username
+                'username' => $user->username,
+                'image' => $user->image
             ]
         ]);
+    }
+
+    public function refresh(Request $request)
+    {
+        $user = $request->user();
+
+        return response()->json(['user' => [
+            'name' => $user->name,
+            'email' => $user->email,
+            'username' => $user->username,
+            'name' => $user->name,
+            'image' => $user->image
+        ]]);
     }
 }

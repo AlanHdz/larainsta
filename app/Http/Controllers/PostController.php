@@ -2,35 +2,29 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Posts\DeletePostRequest;
+use App\Http\Requests\Posts\PostRequest;
 use App\Models\Image;
 use App\Models\Post;
-use http\Env\Response;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 
 class PostController extends Controller
 {
 
-    public function store(Request $request) : JsonResponse
+    public function store(PostRequest $request) : JsonResponse
     {
-
-        $validator = Validator::make($request->only('image', 'description', 'location'), [
-            'image' => 'image|mimes:jpg,png|required',
-            'description' => 'string',
-            'location' => 'string'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
         $result = cloudinary()->upload($request->file('image')->getRealPath(), [
             'folder' => Auth::user()->username,
             'transformation' => [
                 'quality' => "auto",
-                'fetch_format' => "auto"
+                'fetch_format' => "auto",
+                'width' => 595,
+                'height' => 800,
+                'crop' => 'limit'
             ]
         ]);
 
@@ -63,7 +57,7 @@ class PostController extends Controller
 
     }
 
-    public function delete(Request $request, $id)
+    public function delete(DeletePostRequest $request, $id) : JsonResponse
     {
         $post = Post::find($id);
 
@@ -71,15 +65,31 @@ class PostController extends Controller
             return response()->json(['message' => 'Post not found'], 404);
         }
 
-        if (Auth::user()->id != $post->user_id) {
-            return response()->json(['message' => 'Do you not have access'], 403);
-        }
-
         $post->images()->delete();
 
         $post->delete();
 
         return response()->json(['message' => 'Post deleted succesfully'], 200);
+    }
+
+    public function getPostsUser($username)
+    {
+
+        $user = User::where('username', $username);
+        if (!$user->exists()) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+        
+        $user = $user->select(['users.id', 'users.username', 'users.email', 'users.image'])->with([
+            'posts' => function (Builder $query) {
+                $query->select(['posts.description', 'posts.id', 'posts.location', 'posts.created_at', 'posts.user_id'])->latest();
+            }, 
+            'posts.images' => function (Builder $query) {
+                $query->select(['images.id', 'images.public_image_id', 'images.post_id', 'images.image_url']);
+            }])
+            ->first();
+
+        return response()->json(['user' => $user]);
     }
 
 }
