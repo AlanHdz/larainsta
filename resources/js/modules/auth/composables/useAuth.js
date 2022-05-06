@@ -20,10 +20,16 @@ const useAuth = () => {
     return resp
   }
 
+  const logoutUser = async () => {
+    const resp = await store.dispatch('auth/logout');
+    return resp
+  }
+
   return {
     loginUser,
     createUser,
     checkAuthStatus,
+    logoutUser,
     currentUser: computed(() => store.getters['auth/currentUser']),
     authStatus: computed(() => store.getters['auth/currentState'])
   }

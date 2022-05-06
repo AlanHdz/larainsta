@@ -3,7 +3,7 @@ import * as actions from './actions'
 import * as getters from './getters'
 import * as mutations from './mutations'
 
-const feedModule = {
+const profileModule = {
     namespaced: true,
     actions,
     getters,
@@ -11,4 +11,4 @@ const feedModule = {
     state
 }
 
-export default feedModule
+export default profileModule

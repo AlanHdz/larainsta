@@ -65,3 +65,8 @@ export const checkAuthentication = async({ commit }) => {
     }
 
 }
+
+export const logout = async({ commit }) => {
+    commit('logout')
+    return { ok: true }
+}

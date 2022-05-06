@@ -78,12 +78,15 @@
               <li class="">
                 <a class="rounded hover hover:bg-gray-200 py-2 px-4 block whitespace-no-wrap" href="#">Perfil</a>
               </li>
+              <li>
+                <a class="rounded hover hover:bg-gray-200 py-2 px-4 block whitespace-no-wrap" href="#">Crear post</a>
+              </li>
               <li class="">
                 <a class="rounded hover hover:bg-gray-200 py-2 px-4 block whitespace-no-wrap" href="#">Configuracion</a>
               </li>
               <hr>
               <li class="">
-                <a class="rounded hover hover:bg-gray-200 py-2 px-4 block whitespace-no-wrap" href="#">Salir</a>
+                <a @click.prevent="logout" class="rounded hover hover:bg-gray-200 py-2 px-4 block whitespace-no-wrap" href="#">Salir</a>
               </li>
             </ul>
           </div>
@@ -98,6 +101,7 @@
 import { SearchIcon, PlusCircleIcon, HomeIcon } from "@heroicons/vue/solid";
 import { onMounted, onUnmounted, ref } from "vue";
 import useAuth from "../modules/auth/composables/useAuth";
+import { useRouter } from 'vue-router'
 export default {
   setup() {
     const searchIconVisibility = ref(true);
@@ -105,7 +109,8 @@ export default {
     const inputSearch = ref(null);
     const showDropdown = ref(false);
 
-    const { currentUser } = useAuth();
+    const { currentUser, logoutUser } = useAuth();
+    const router = useRouter()
 
     const mouseDownInput = (e) => {
       if (!inputSearch.value.contains(e.target)) {
@@ -129,6 +134,11 @@ export default {
       document.removeEventListener("mousedown", mouseDownInput);
     });
 
+    const logout = () => {
+      logoutUser()
+      router.push({ name: 'login' })
+    }
+
     return {
       searchIconVisibility,
       plusCircleIconVisibility,
@@ -136,6 +146,7 @@ export default {
       currentUser,
       toggleDropdown,
       showDropdown,
+      logout
     };
   },
   components: {

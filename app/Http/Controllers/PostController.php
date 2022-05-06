@@ -80,16 +80,21 @@ class PostController extends Controller
             return response()->json(['message' => 'User not found'], 404);
         }
         
-        $user = $user->select(['users.id', 'users.username', 'users.email', 'users.image'])->with([
-            'posts' => function (Builder $query) {
-                $query->select(['posts.description', 'posts.id', 'posts.location', 'posts.created_at', 'posts.user_id'])->latest();
-            }, 
-            'posts.images' => function (Builder $query) {
-                $query->select(['images.id', 'images.public_image_id', 'images.post_id', 'images.image_url']);
-            }])
+        $user = $user->select(['users.id', 'users.username', 'users.email', 'users.image'])
+            ->withCount(['following', 'follower'])
             ->first();
 
-        return response()->json(['user' => $user]);
+        
+        $posts = Post::where('user_id', $user->id)->with([
+            'images' => function ($query) {
+                $query->select(['images.id', 'images.image_url', 'images.post_id', 'images.public_image_id']);
+            }, 
+            'user' => function($query) {
+                $query->select(['users.id', 'users.username']);
+            }])
+        ->get();
+
+        return response()->json(['user' => $user, 'posts' => $posts]);
     }
 
 }

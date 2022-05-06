@@ -20,18 +20,26 @@
       <h2 class="font-bold">{{ currentUser.username }}</h2>
       <h3 class="text-sm text-gray-400">Welcome to larainsta</h3>
     </div>
-    <button class="text-blue-400 text-sm font-semibold">Salir</button>
+    <button @click="logout" class="text-blue-400 text-sm font-semibold">Salir</button>
   </div>
 </template>
 
 <script>
 import useAuth from "@/modules/auth/composables/useAuth";
+import { useRoute } from 'vue-router';
 export default {
   setup() {
-    const { currentUser } = useAuth();
+    const router = useRoute();
+    const { currentUser, logoutUser } = useAuth();
+    
+    const logout = () => {
+      logoutUser()
+      router.push({ name: 'login' })
+    }
 
     return {
       currentUser,
+      logout
     };
   },
 };
